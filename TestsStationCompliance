@@ -1,0 +1,22 @@
+import VerifyStationPostsResponse
+import json
+
+
+class TestsStationCompliance():
+
+    def __init__(self):
+        self.station_compliance = VerifyStationPostsResponse()
+
+    # Example of a possible test case with post data values
+    def test_case_verify_wrong_version(self):
+        station_id = 1
+        n = 6
+        response_get_version = {'versionNumber': '0.4'}
+        response_get_interval = {'intervalNumber': '25'}
+        response_set_values = {'setValuesMsgResponse': 'OK'}
+
+        self.station_compliance.verify_station_compliance_single_station(station_id, n, response_get_version,
+                                                                         response_get_interval, response_set_values)
+
+    # Tests could also been written in a json file, for scalability 
+
