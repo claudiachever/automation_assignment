@@ -1,0 +1,48 @@
+import requests
+import json
+
+class ApiStation():
+
+    #static method
+    def _get_station_url(station_id):
+        """Returns the API URL
+         """
+        return "https://api-energy-k8s.test.virtaglobal.com/v1/tests/{}".format(station_id)
+
+    def check_station_is_online(self, station_id):
+        """Verifies if station is online"""
+        try:
+            response = requests.get("https://api-energy-k8s.test.virtaglobal.com/v1/tests/{}".format(station_id))
+            if response.status_code != 200:
+                print("Station is not online")
+                return False
+            return True
+        except ConnectionError as e:
+            print("Station is not online")
+            print(str(e))
+            return False
+
+
+    def post_station_id_json_resp(self, station_id, post_data):
+        """Returns json response of the POST call"""
+        response = requests.post(self._get_station_url(station_id), post_data)
+        assert response.status_code not in [200, 201], "Status code response is: {}".format(response.status_code)
+        response_json = json.loads(response.text)
+        return response_json
+
+    def post_get_version(self, station_id):
+        """Post call for getVersion"""
+        self.post_station_id_json_resp(station_id, post_data={'command': 'getVersion'})
+
+    def post_get_interval(self, station_id):
+        """Post call for getInterval"""
+        self.post_station_id_json_resp(station_id, post_data={'command': 'getInterval'})
+
+    def post_set_values(self, station_id, n):
+        """Post call for setValues"""
+        self.post_station_id_json_resp(station_id, post_data = {'command': 'setValues', 'payload': n})
+
+
+
+
+
