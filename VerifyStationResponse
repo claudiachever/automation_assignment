@@ -1,0 +1,80 @@
+import ApiStation
+
+class VerifyStationPostsResponse():
+    list_of_station_ids = [1, 2, 3, 4, 5]
+
+    def __init__(self):
+        self.api_station= ApiStation()
+
+
+    def verify_post_get_version(self, station_id, response_get_version):
+        """Verifies if the Get Version POST meets expected response
+            I assumed that version number response will be returned in a json as for example: {'versionNumber' : '2.4'}
+            so : response_version_number = response_get_version["versionNumber"]
+        """
+        self.api_station.post_get_version(station_id)
+        response_version_number = response_get_version["versionNumber"]
+
+        assert type(response_version_number) is int, "Station Id Version should be a number."
+        if int(response_version_number) < 1.6:
+            raise Exception("ERROR - Station Id Version Number is wrong.")
+        elif int(response_version_number) == 1.6:
+            print("WARNING - Station Id Version Number is equal to 1.6")
+        else:
+            print("PASS - Station Id Version Number is correct")
+
+
+    def verify_post_get_interval(self, station_id, response_get_interval):
+        """Verifies if the Get interval POST meets expected response
+               I assumed that interval response will be returned in a json as for example: {'intervalNumber' : '25'}
+               so : response_interval_number= response_get_interval["intervalNumber"]
+        """
+        self.api_station.post_get_interval(station_id)
+        response_interval_number = response_get_interval["intervalNumber"]
+
+        assert type(response_interval_number) is int, "Station Id Interval should be a number."
+        if int(response_interval_number) not in range(1, 61):
+            raise Exception("ERROR - Station Id Version Interval is wrong : {}".format(response_interval_number))
+        else:
+            print("PASS - Station Id Version Interval is correct.")
+
+
+    def verify_set_values_post_data(self, station_id, n, response_set_values):
+        """Verifies if Set Values POST meets expected response
+           I assumed that message response will be returned in a json as for example: {'setValuesMsgResponse': 'OK'}
+           so : response_set_values_message = response_set_values["setValuesMsgResponse"]
+                """
+        self.api_station.post_set_values(station_id, n)
+        response_set_values_message = response_set_values["setValuesMsgResponse"]
+
+        assert type(response_set_values_message) is str, "Set Values Response should be a string"
+        assert response_set_values_message.isupper(), "Set Values Response should be Upper case"
+        assert type(n) is int, "Payload should be a number."
+        if 1 < int(n) < 10:
+            print("OK")
+        elif int(n) > 10:
+            raise Exception("FAILED")
+        else:
+            print("WARNING - Payload number unknown : 10")  ##I was thinking here what to do in case n=10
+
+
+    def verify_station_compliance_single_station(self, station_id, n, response_get_version, response_get_interval, response_set_values):
+        """Verifies station compliance for one station id
+        """
+        if self.api_station.check_station_is_online(station_id):
+            self.verify_post_get_version(station_id, response_get_version)
+            self.verify_post_get_interval(station_id, response_get_interval)
+            self.verify_set_values_post_data(station_id, n, response_set_values)
+
+            print ("SUCCESS - Station with id {} is compliant".format(station_id))
+
+
+    def verify_station_compliance_all_stations(self, n, response_get_version, response_get_interval, response_set_values):
+        """Verifies station compliance for all station ids.
+        A station is compliant when responses from all POSTs are met.
+        """
+
+        for station_id in self.list_of_station_ids:
+            self.verify_station_compliance_single_station(station_id, n, response_get_version, response_get_interval, response_set_values)
+
+                
